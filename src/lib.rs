@@ -24,9 +24,6 @@ pub trait PersistentStorage {
     /// The identifier for the target of an `Io`.
     type Id;
 
-    /// Flag supplied on `open()`.
-    type Flag;
-
     /// Associated error type.
     type Error: Debug;
 
@@ -36,5 +33,15 @@ pub trait PersistentStorage {
         Self: 'a;
 
     /// Produces a new `Io` that is backed by an arbitrary number of bytes.
-    fn open<'a>(&'a mut self, id: Self::Id, flag: Self::Flag) -> Result<Self::Io<'_>, Self::Error>;
+    fn open<'a>(
+        &'a mut self,
+        id: Self::Id,
+        access: StorageAccess,
+    ) -> Result<Self::Io<'_>, Self::Error>;
+}
+
+/// An extremely basic hint for how storage will be accessed.
+pub enum StorageAccess {
+    Read,
+    Write,
 }
