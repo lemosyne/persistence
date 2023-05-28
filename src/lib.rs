@@ -32,23 +32,28 @@ pub trait PersistentStorage {
     where
         Self: 'a;
 
-    /// Produces a new `Io` that is backed by an arbitrary number of bytes.
-    fn open<'a>(
-        &'a mut self,
-        id: Self::Id,
-        access: StorageAccess,
-    ) -> Result<Self::Io<'_>, Self::Error>;
-}
+    /// Creates a new object.
+    fn create(&mut self, objid: &Self::Id) -> Result<(), Self::Error>;
 
-/// An extremely basic hint for how storage will be accessed.
-pub enum StorageAccess {
-    Read,
-    Write,
+    /// Destroys an object.
+    fn destroy(&mut self, objid: &Self::Id) -> Result<(), Self::Error>;
+
+    /// Returns an `Io` handle to read object with.
+    fn read_handle(&mut self, objid: &Self::Id) -> Result<Self::Io<'_>, Self::Error>;
+
+    /// Returns an `Io` handle to write an object with.
+    fn write_handle(&mut self, objid: &Self::Id) -> Result<Self::Io<'_>, Self::Error>;
+
+    /// Returns an `Io` handle to read and write an object with.
+    fn rw_handle(&mut self, objid: &Self::Id) -> Result<Self::Io<'_>, Self::Error>;
+
+    /// Shortens an object.
+    fn truncate(&mut self, objid: &Self::Id, size: u64) -> Result<(), Self::Error>;
 }
 
 #[cfg(feature = "std")]
 pub mod standard {
-    use crate::{PersistentStorage, StorageAccess};
+    use crate::PersistentStorage;
     use embedded_io::adapters::FromStd;
     use path_macro::path;
     use std::{
@@ -69,7 +74,7 @@ pub mod standard {
             })
         }
 
-        fn object_path(&self, objid: u64) -> PathBuf {
+        fn object_path(&self, objid: &u64) -> PathBuf {
             path![self.root / format!("{objid}")]
         }
     }
@@ -79,19 +84,41 @@ pub mod standard {
         type Io<'a> = FromStd<File>;
         type Error = io::Error;
 
-        fn open<'a>(
-            &'a mut self,
-            objid: Self::Id,
-            access: StorageAccess,
-        ) -> Result<Self::Io<'_>, Self::Error> {
-            Ok(FromStd::new(match access {
-                StorageAccess::Read => File::options().read(true).open(self.object_path(objid)),
-                StorageAccess::Write => File::options()
+        fn create(&mut self, objid: &Self::Id) -> Result<(), Self::Error> {
+            File::create(self.object_path(objid))?;
+            Ok(())
+        }
+
+        fn destroy(&mut self, objid: &Self::Id) -> Result<(), Self::Error> {
+            fs::remove_file(self.object_path(objid))
+        }
+
+        fn read_handle(&mut self, objid: &Self::Id) -> Result<Self::Io<'_>, Self::Error> {
+            Ok(FromStd::new(
+                File::options().read(true).open(self.object_path(objid))?,
+            ))
+        }
+
+        fn write_handle(&mut self, objid: &Self::Id) -> Result<Self::Io<'_>, Self::Error> {
+            Ok(FromStd::new(
+                File::options().write(true).open(self.object_path(objid))?,
+            ))
+        }
+
+        fn rw_handle(&mut self, objid: &Self::Id) -> Result<Self::Io<'_>, Self::Error> {
+            Ok(FromStd::new(
+                File::options()
                     .read(true)
                     .write(true)
-                    .create(true)
-                    .open(self.object_path(objid)),
-            }?))
+                    .open(self.object_path(objid))?,
+            ))
+        }
+
+        fn truncate(&mut self, objid: &Self::Id, size: u64) -> Result<(), Self::Error> {
+            File::options()
+                .write(true)
+                .open(self.object_path(objid))?
+                .set_len(size)
         }
     }
 }
