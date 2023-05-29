@@ -47,6 +47,9 @@ pub trait PersistentStorage {
     /// Returns an `Io` handle to read and write an object with.
     fn rw_handle(&mut self, objid: &Self::Id) -> Result<Self::Io<'_>, Self::Error>;
 
+    /// Returns the size, in bytes, of an object.
+    fn size(&mut self, objid: &Self::Id) -> Result<u64, Self::Error>;
+
     /// Shortens an object.
     fn truncate(&mut self, objid: &Self::Id, size: u64) -> Result<(), Self::Error>;
 }
@@ -112,6 +115,10 @@ pub mod standard {
                     .write(true)
                     .open(self.object_path(objid))?,
             ))
+        }
+
+        fn size(&mut self, objid: &Self::Id) -> Result<u64, Self::Error> {
+            Ok(fs::metadata(self.object_path(objid))?.len())
         }
 
         fn truncate(&mut self, objid: &Self::Id, size: u64) -> Result<(), Self::Error> {
