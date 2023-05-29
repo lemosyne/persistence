@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 embedded-io = { git = "https://github.com/euugenechou/embedded-io.git" }
 path_macro = { version = "1.0.0", optional = true }
+serde = { version = "1.0.163", optional = true }
 
 [features]
-std = ["embedded-io/std", "path_macro"]
+std = ["embedded-io/std", "path_macro", "serde/derive"]

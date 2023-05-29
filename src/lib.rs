@@ -59,12 +59,14 @@ pub mod standard {
     use crate::PersistentStorage;
     use embedded_io::adapters::FromStd;
     use path_macro::path;
+    use serde::{Deserialize, Serialize};
     use std::{
         fs::{self, File},
         io,
         path::{Path, PathBuf},
     };
 
+    #[derive(Serialize, Deserialize)]
     pub struct StdObjectStore {
         root: PathBuf,
     }
