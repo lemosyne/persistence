@@ -20,13 +20,12 @@ where
 pub trait PersistentStorage {
     /// The identifier for the target of an `Io`.
     type Id;
-
     /// Flags for creation.
     type Flags;
-
+    /// Contains object information.
+    type Info;
     /// Associated error type.
     type Error: Debug;
-
     /// The produced `Io` type.
     type Io<'a>: Read + Write + Seek
     where
@@ -37,6 +36,9 @@ pub trait PersistentStorage {
 
     /// Destroys an object.
     fn destroy(&mut self, objid: &Self::Id) -> Result<(), Self::Error>;
+
+    /// Gets information about an object.
+    fn info(&mut self, objid: &Self::Id) -> Result<Self::Info, Self::Error>;
 
     /// Returns an `Io` handle to read object with.
     fn read_handle(&mut self, objid: &Self::Id) -> Result<Self::Io<'_>, Self::Error>;
