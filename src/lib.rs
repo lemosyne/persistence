@@ -1,8 +1,5 @@
 use core::fmt::Debug;
-use embedded_io::{
-    blocking::{Read, Write},
-    Io,
-};
+use embedded_io::blocking::{Read, Seek, Write};
 
 /// A trait for persisting and loading objects using `Io`s.
 pub trait Persist<Io>: Sized
@@ -28,7 +25,7 @@ pub trait PersistentStorage {
     type Error: Debug;
 
     /// The produced `Io` type.
-    type Io<'a>: Io
+    type Io<'a>: Read + Write + Seek
     where
         Self: 'a;
 
@@ -86,8 +83,8 @@ pub mod standard {
 
     impl PersistentStorage for StdObjectStore {
         type Id = u64;
-        type Io<'a> = FromStd<File>;
         type Error = io::Error;
+        type Io<'a> = FromStd<File>;
 
         fn create(&mut self, objid: &Self::Id) -> Result<(), Self::Error> {
             File::create(self.object_path(objid))?;
