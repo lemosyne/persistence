@@ -24,18 +24,8 @@ pub trait PersistentStorage {
     /// Associated error type.
     type Error: Debug;
 
-    /// The produced `Io` type for reading.
-    type ReadIoHandle<'a>: Read + Seek
-    where
-        Self: 'a;
-
-    /// The produced `Io` type for writing.
-    type WriteIoHandle<'a>: Write + Seek
-    where
-        Self: 'a;
-
-    /// The produced `Io` type for reading and writing.
-    type RwIoHandle<'a>: Read + Write + Seek
+    /// The produced `Io` type.
+    type Io<'a>: Read + Write + Seek
     where
         Self: 'a;
 
@@ -46,13 +36,13 @@ pub trait PersistentStorage {
     fn destroy(&mut self, objid: &Self::Id) -> Result<(), Self::Error>;
 
     /// Returns an `Io` handle to read object with.
-    fn read_handle(&mut self, objid: &Self::Id) -> Result<Self::ReadIoHandle<'_>, Self::Error>;
+    fn read_handle(&mut self, objid: &Self::Id) -> Result<Self::Io<'_>, Self::Error>;
 
     /// Returns an `Io` handle to write an object with.
-    fn write_handle(&mut self, objid: &Self::Id) -> Result<Self::WriteIoHandle<'_>, Self::Error>;
+    fn write_handle(&mut self, objid: &Self::Id) -> Result<Self::Io<'_>, Self::Error>;
 
     /// Returns an `Io` handle to read and write an object with.
-    fn rw_handle(&mut self, objid: &Self::Id) -> Result<Self::RwIoHandle<'_>, Self::Error>;
+    fn rw_handle(&mut self, objid: &Self::Id) -> Result<Self::Io<'_>, Self::Error>;
 
     /// Shortens an object.
     fn truncate(&mut self, objid: &Self::Id, size: u64) -> Result<(), Self::Error>;
