@@ -38,7 +38,10 @@ pub trait PersistentStorage {
     fn destroy(&mut self, objid: &Self::Id) -> Result<(), Self::Error>;
 
     /// Gets information about an object.
-    fn info(&mut self, objid: &Self::Id) -> Result<Self::Info, Self::Error>;
+    fn get_info(&mut self, objid: &Self::Id) -> Result<Self::Info, Self::Error>;
+
+    /// Sets information about an object.
+    fn set_info(&mut self, objid: &Self::Id, info: Self::Info) -> Result<(), Self::Error>;
 
     /// Returns an `Io` handle to read object with.
     fn read_handle(&mut self, objid: &Self::Id) -> Result<Self::Io<'_>, Self::Error>;
