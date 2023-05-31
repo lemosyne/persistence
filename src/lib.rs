@@ -16,9 +16,9 @@ where
     fn load(source: Io) -> Result<Self, Self::Error>;
 }
 
-/// Types that can be used to generate handles to write data to persistent storage.
+/// Types that oversee creation, deletion, and modification of objects in persistent storage.
 pub trait PersistentStorage {
-    /// The identifier for the target of an `Io`.
+    /// The identifier for an object.
     type Id;
     /// Flags for creation.
     type Flags;
