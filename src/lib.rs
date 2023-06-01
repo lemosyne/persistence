@@ -58,8 +58,8 @@ pub trait PersistentStorage {
     fn truncate(&mut self, objid: &Self::Id, size: u64) -> Result<(), Self::Error>;
 
     /// Persists state to a fixed place.
-    fn persist_state(&mut self, state: Self::State) -> Result<(), Self::Error>;
+    fn persist_state(&mut self, state: Option<Self::State>) -> Result<(), Self::Error>;
 
     /// Loads state from a fixed place.
-    fn load_state(&mut self) -> Result<Self::State, Self::Error>;
+    fn load_state(&mut self) -> Result<Option<Self::State>, Self::Error>;
 }
