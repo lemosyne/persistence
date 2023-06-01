@@ -26,6 +26,8 @@ pub trait PersistentStorage {
     type Info;
     /// Associated error type.
     type Error: Debug;
+    /// State type.
+    type State;
     /// The produced `Io` type.
     type Io<'a>: Read + Write + Seek
     where
@@ -54,4 +56,10 @@ pub trait PersistentStorage {
 
     /// Shortens an object.
     fn truncate(&mut self, objid: &Self::Id, size: u64) -> Result<(), Self::Error>;
+
+    /// Persists state to a fixed place.
+    fn persist_state(&mut self, state: Self::State) -> Result<(), Self::Error>;
+
+    /// Loads state from a fixed place.
+    fn load_state(&mut self) -> Result<Self::State, Self::Error>;
 }
