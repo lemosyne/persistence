@@ -32,7 +32,7 @@ pub trait PersistentStorage {
         Self: 'a;
 
     /// Creates a new object.
-    fn create(&mut self, objid: &Self::Id, flags: Self::Flags) -> Result<(), Self::Error>;
+    fn create(&mut self, objid: &Self::Id, flags: &Self::Flags) -> Result<(), Self::Error>;
 
     /// Destroys an object.
     fn destroy(&mut self, objid: &Self::Id) -> Result<(), Self::Error>;
