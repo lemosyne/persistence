@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-embedded-io = { git = "https://github.com/euugenechou/embedded-io.git" }
+embedded-io = { git = "https://github.com/lemosyne/embedded-io.git" }
